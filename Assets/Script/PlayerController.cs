@@ -4,80 +4,33 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    /*   public float jumpHeight = 5f;
-       public float jumpDuration = 0.5f;
-       public float Gravy;
-       private float jumpStartTime;
-       private bool isJumping;
+    public float jumpHeight = 2f; // Height of the jump
+    public float jumpDuration = 0.5f; // Duration of the jump
 
-       void Update()
-       {
-           // Check for jump input
-           if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
-           {
-               StartJump();
-           }
-
-           // Handle jump
-           if (isJumping)
-           {
-               float timeSinceJumpStart = Time.time - jumpStartTime;
-               if (timeSinceJumpStart < jumpDuration)
-               {
-                   // Calculate jump height using a simple upward motion equation
-                   float jumpProgress = timeSinceJumpStart / jumpDuration;
-                   float jumpHeightThisFrame = Mathf.Lerp(jumpHeight, 0f, jumpProgress * jumpProgress);
-                   transform.Translate(Vector3.up * jumpHeightThisFrame * Time.deltaTime);
-               }
-               else
-               {
-                   isJumping = false;
-               }
-           }
-       }
-
-       void StartJump()
-       {
-           isJumping = true;
-           jumpStartTime = Time.time;
-       }*/
-
-    public float jumpHeight = 5f;
-    public float jumpDuration = 0.5f;
-    public float gravity = -9.81f;
-
+    private bool isJumping = false;
     private float jumpStartTime;
-    private bool isJumping;
+    private Vector2 startPos;
+
+    public float terminalVelocity = 10f;
+
+    public bool gravityOn = true;
 
     void Update()
     {
-        // Check for jump input
         if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         {
             StartJump();
         }
 
-        // Handle jump
         if (isJumping)
         {
-            float timeSinceJumpStart = Time.time - jumpStartTime;
+            PerformJump();
 
-            if (timeSinceJumpStart < jumpDuration)
-            {
-                // Calculate jump height using a quadratic motion equation
-                float jumpProgress = timeSinceJumpStart / jumpDuration;
-                float jumpHeightThisFrame = Mathf.Lerp(jumpHeight, 0f, jumpProgress * jumpProgress);
-
-                // Apply gravity
-                float gravityThisFrame = gravity * timeSinceJumpStart;
-                float verticalMovement = jumpHeightThisFrame + gravityThisFrame;
-
-                transform.Translate(Vector3.up * verticalMovement * Time.deltaTime);
-            }
-            else
-            {
-                isJumping = false;
-            }
+        }
+        else if (!isJumping && gravityOn)
+        {
+            // If jump is finished and gravity is enabled, apply gravity
+            ApplyGravity();
         }
     }
 
@@ -85,5 +38,34 @@ public class PlayerController : MonoBehaviour
     {
         isJumping = true;
         jumpStartTime = Time.time;
+        startPos = transform.position;
     }
+
+    void PerformJump()
+    {
+        float timeSinceJumpStart = Time.time - jumpStartTime;
+        if (timeSinceJumpStart >= jumpDuration)
+        {
+            // Jump finished
+            isJumping = false;
+            gravityOn = true; // Enable gravity when jump is finished
+            return;
+           
+        }
+
+        float t = timeSinceJumpStart / jumpDuration;
+        float newY = Mathf.Lerp(startPos.y, startPos.y + jumpHeight, t);
+
+        // Update the player's position
+        transform.position = new Vector2(transform.position.x, newY);
+    }
+    void ApplyGravity()
+    {
+        // Apply gravity to the player
+        transform.Translate(Vector2.down * Time.deltaTime * 9.8f); // Adjust gravity strength if needed
+    }   
+
+
+
+
 }

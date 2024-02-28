@@ -3,14 +3,22 @@ using UnityEngine;
 public class CollisionManager : MonoBehaviour
 {
     public Shape MainCharacter;
-    private void Awake()
+    private Shape[] colliders;
+
+/*    private void Awake()
     {
         MainCharacter = GetComponent<Shape>();
         var Colliders = FindObjectsOfType<Shape>();
+    }*/
+
+    private void Start()
+    {
+        colliders = FindObjectsOfType<Shape>();
     }
+
     private void Update()
     {
-        var Colliders = FindObjectsOfType<Shape>();
+        /*var Colliders = FindObjectsOfType<Shape>();
 
         foreach (var c in Colliders)
         {
@@ -18,6 +26,21 @@ public class CollisionManager : MonoBehaviour
             if (MainCharacter == c) continue;
             if( CheckCollision(MainCharacter, c))
             {
+                Debug.LogError("Collision Detected");
+            }
+        }*/
+        DetectCollision();
+    }
+
+    private void DetectCollision()
+    {
+        foreach (var collider in colliders)
+        {
+            if (collider.CompareTag("Player")) continue;
+
+            if (CheckCollision(collider, MainCharacter))
+            {
+                MainCharacter.GetComponent<PlayerController>().gravityOn = false;
                 Debug.LogError("Collision Detected");
             }
         }
